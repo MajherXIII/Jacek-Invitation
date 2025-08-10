@@ -6,13 +6,12 @@
   <title>🚀 Urodziny Jacka – Misja: Start!</title>
   <meta name="description" content="Interaktywne zaproszenie na urodziny Jacka – kosmos, rakiety, odliczanie, mapa, dodaj do kalendarza." />
   <meta name="theme-color" content="#0b1020" />
-  <!-- Open Graph (karta linku w Messenger/WhatsApp). Po wygenerowaniu obrazu zapisz go jako og-image-rocket.png obok HTML. -->
   <meta property="og:title" content="🚀 Urodziny Jacka – Misja: Start!" />
   <meta property="og:description" content="17 sierpnia 2025, 15:00 – Naprawa 463 (Altana). Dołącz do kosmicznej misji!" />
   <meta property="og:image" content="og-image-rocket.png" />
   <meta property="og:type" content="website" />
   <style>
-    :root{ --bg:#0b1020; --bg-2:#0e1630; --text:#e8ecff; --muted:#a7b0d6; --accent:#6ae3ff; --accent-2:#8a7dff; --card:#121a35; --success:#35e39c; --warning:#ffd166; }
+    :root{ --bg:#0b1020; --bg-2:#0e1630; --text:#e8ecff; --muted:#a7b0d6; --accent:#6ae3ff; --accent-2:#8a7dff; --card:#121a35; }
     html,body{height:100%}
     body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";background:radial-gradient(1200px 600px at 10% -10%, #1a2448, transparent),radial-gradient(800px 400px at 90% -10%, #231a48, transparent),linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);color:var(--text);overflow-x:hidden}
     .stars, .stars:before, .stars:after{content:"";position:fixed;inset:0;background-repeat:repeat;z-index:-1;background-image:radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,.8) 50%, transparent 51%),radial-gradient(1px 1px at 50px 80px, rgba(255,255,255,.7) 50%, transparent 51%),radial-gradient(1px 1px at 130px 120px, rgba(255,255,255,.6) 50%, transparent 51%),radial-gradient(2px 2px at 200px 20px, rgba(255,255,255,.5) 50%, transparent 51%);animation:drift 120s linear infinite;opacity:.7}
@@ -42,8 +41,6 @@
     a.btn.secondary,button.btn.secondary{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.2);box-shadow:none}
     dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0}
     dt{color:var(--muted)} dd{margin:0;font-weight:600}
-    #ogPreview{margin: 12px auto 0;max-width:1200px}
-    #ogCanvas{width:100%;height:auto;border-radius:16px;border:1px solid rgba(255,255,255,.12)}
     footer{text-align:center;color:var(--muted);font-size:.9rem;padding:24px}
     .sep{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);margin:20px 0}
   </style>
@@ -59,10 +56,6 @@
       <button class="btn" id="addCalBtn" type="button">Dodaj do kalendarza</button>
       <a class="btn secondary" id="mapBtn" target="_blank" rel="noopener">Pokaż trasę</a>
       <button class="btn secondary" id="shareBtn" type="button">Udostępnij</button>
-      <button class="btn secondary" id="dlOgBtn" type="button">Pobierz obraz OG</button>
-    </div>
-    <div id="ogPreview" aria-label="Podgląd obrazu do podglądu linku (Open Graph)">
-      <canvas id="ogCanvas" width="1200" height="630"></canvas>
     </div>
   </header>
 
@@ -119,14 +112,12 @@
   </footer>
 
   <script>
-    // === KONFIGURACJA WYDARZENIA ===
     const EVENT = {
       kidName: "Jacek",
-      kidNameGen: "Jacka",
       kidAge: 4,
       title: "Urodziny Jacka – Misja: Start!",
       hostName: "Rodzice Jacka",
-      startLocal: "2025-08-17T15:00:00", // Europe/Warsaw
+      startLocal: "2025-08-17T15:00:00",
       durationHours: 3,
       address: "Naprawa 463, Altana",
       mapsQuery: "Naprawa 463, 34-240 Jordanów",
@@ -137,7 +128,10 @@
 
     function fmtDateTime(date){
       const d = new Date(date);
-      return { date: d.toLocaleDateString('pl-PL', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }), time: d.toLocaleTimeString('pl-PL', { hour:'2-digit', minute:'2-digit' }) };
+      return {
+        date: d.toLocaleDateString('pl-PL', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }),
+        time: d.toLocaleTimeString('pl-PL', { hour:'2-digit', minute:'2-digit' })
+      }
     }
 
     function toUTCStringNoSep(date){
@@ -165,7 +159,7 @@
 
     function setText(){
       document.title = `🚀 ${EVENT.title}`;
-      $('#kidName').textContent = (EVENT.kidNameGen || EVENT.kidName);
+      $('#kidName').textContent = EVENT.kidName;
       $('#kidName2').textContent = EVENT.kidName;
       $('#kidAge').textContent = EVENT.kidAge;
       $('#hostName').textContent = EVENT.hostName;
@@ -204,68 +198,34 @@
       setInterval(tick, 1000);
     }
 
-    function drawOG(ctx){
-      const W = 1200, H = 630;
-      // Tło gradient + gwiazdy
-      const g = ctx.createLinearGradient(0,0,0,H);
-      g.addColorStop(0,'#0b1024'); g.addColorStop(1,'#0e1630');
-      ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-      for(let i=0;i<220;i++){ ctx.globalAlpha = Math.random()*0.7+0.3; ctx.fillStyle = '#fff'; const x=Math.random()*W, y=Math.random()*H; const r=Math.random()*1.5; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); }
-      ctx.globalAlpha=1;
-      // Poświata/flare
-      const rg = ctx.createRadialGradient(W*0.75,H*0.25,20,W*0.75,H*0.25,500);
-      rg.addColorStop(0,'rgba(106,227,255,0.35)'); rg.addColorStop(1,'rgba(106,227,255,0)');
-      ctx.fillStyle = rg; ctx.fillRect(0,0,W,H);
-      // Orbita
-      ctx.strokeStyle = 'rgba(138,125,255,0.7)'; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.ellipse(W*0.55,H*0.55,420,160,-0.35,0,Math.PI*1.15); ctx.stroke();
-      // Rakieta (minimal)
-      ctx.save(); ctx.translate(W*0.78,H*0.35); ctx.rotate(-0.35);
-      ctx.fillStyle = '#e7f0ff'; ctx.strokeStyle = '#9fb6f5'; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.moveTo(0,-40); ctx.quadraticCurveTo(-18,5,-18,60); ctx.lineTo(18,60); ctx.quadraticCurveTo(18,5,0,-40); ctx.closePath(); ctx.fill(); ctx.stroke();
-      // statewki
-      ctx.fillStyle = '#8a7dff'; ctx.beginPath(); ctx.moveTo(-18,40); ctx.lineTo(-38,60); ctx.lineTo(-18,60); ctx.closePath(); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(18,40); ctx.lineTo(38,60); ctx.lineTo(18,60); ctx.closePath(); ctx.fill();
-      // płomień
-      const grdF = ctx.createLinearGradient(0,60,0,110); grdF.addColorStop(0,'#ffd166'); grdF.addColorStop(1,'#ff9f1a');
-      ctx.fillStyle = grdF; ctx.beginPath(); ctx.moveTo(0,60); ctx.quadraticCurveTo(-10,85,0,110); ctx.quadraticCurveTo(10,85,0,60); ctx.closePath(); ctx.fill();
-      ctx.restore();
-      // Teksty
-      ctx.fillStyle = '#e8ecff';
-      ctx.font = '900 120px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
-      ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-      const title = EVENT.kidName.toUpperCase();
-      ctx.fillText(title, 80, 120);
-      ctx.font = '700 46px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
-      ctx.fillStyle = '#a7b0d6';
-      ctx.fillText('MISJA: START', 84, 230);
-      ctx.font = '700 38px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
-      ctx.fillStyle = '#c9d2ff';
-      const d = new Date(EVENT.startLocal);
-      const dateStr = d.toLocaleDateString('pl-PL', { day:'2-digit', month:'2-digit', year:'numeric' }).replace(/\./g,'·');
-      const timeStr = d.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'});
-      ctx.fillText(`${dateStr}  ${timeStr}`, 84, 290);
-      ctx.font = '600 34px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
-      ctx.fillStyle = '#9fb6f5';
-      ctx.fillText('Naprawa 463 — Altana', 84, 340);
-    }
-
     function setupButtons(){
       const addCal = $('#addCalBtn');
-      if(addCal){ addCal.addEventListener('click', ()=>{ const blob = makeICS(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'Urodziny-'+EVENT.kidName+'.ics'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500); }); }
+      if(addCal){
+        addCal.addEventListener('click', ()=>{
+          const blob = makeICS();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'Urodziny-'+EVENT.kidName+'.ics';
+          document.body.appendChild(a); a.click();
+          setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
+        });
+      }
 
       const shareBtn = $('#shareBtn');
-      if(shareBtn){ shareBtn.addEventListener('click', async ()=>{ const shareData = { title: EVENT.title, text: `Dołącz do urodzin ${EVENT.kidName}!`, url: location.href }; if(navigator.share){ try{ await navigator.share(shareData); }catch(e){} } else { await navigator.clipboard.writeText(shareData.url); alert('Skopiowano link. Wklej go do SMS/Messenger/WhatsApp.'); } }); }
-
-      const dlOgBtn = $('#dlOgBtn');
-      if(dlOgBtn){ dlOgBtn.addEventListener('click', ()=>{ const canvas = $('#ogCanvas'); const link = document.createElement('a'); link.download = 'og-image-rocket.png'; link.href = canvas.toDataURL('image/png'); link.click(); }); }
+      if(shareBtn){
+        shareBtn.addEventListener('click', async ()=>{
+          const shareData = { title: EVENT.title, text: `Dołącz do urodzin ${EVENT.kidName}!`, url: location.href };
+          if(navigator.share){
+            try{ await navigator.share(shareData); }catch(e){}
+          } else {
+            await navigator.clipboard.writeText(shareData.url);
+            alert('Skopiowano link. Wklej go do SMS/Messenger/WhatsApp.');
+          }
+        });
+      }
     }
 
-    function init(){
-      setText(); setupCountdown();
-      const canvas = $('#ogCanvas'); const ctx = canvas.getContext('2d'); drawOG(ctx);
-      setupButtons();
-    }
+    function init(){ setText(); setupCountdown(); }
     init();
   </script>
 </body>
